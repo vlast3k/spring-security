@@ -16,6 +16,7 @@
 package org.springframework.security.web;
 
 import java.io.IOException;
+import java.net.URL;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,7 +50,18 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
 			String url) throws IOException {
 		String redirectUrl = calculateRedirectUrl(request.getContextPath(), url);
 		redirectUrl = response.encodeRedirectURL(redirectUrl);
-
+		
+		logger.info("redirecturl before:" + redirectUrl);
+		logger.info(">>>>> X-Forwaded = " + request.getHeader("X-Forwarded-For") + ":" +request.getHeader("X-Forwarded-Port"));
+		if (!redirectUrl.startsWith("/") ) {
+			URL u = new URL(redirectUrl);
+			
+			//u = new URL(u.getProtocol(), u.getHost(), Integer.parseInt(request.getHeader("X-Forwarded-Port")), u.getFile());
+			u = new URL(u.getProtocol(), u.getHost(), 2793, u.getFile());
+			redirectUrl = u.toString();
+		}
+		logger.info("redirecturl after:" + redirectUrl);
+		
 		if (logger.isDebugEnabled()) {
 			logger.debug("Redirecting to '" + redirectUrl + "'");
 		}
